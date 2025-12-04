@@ -1,50 +1,115 @@
-# Welcome to your Expo app 👋
+# Himsog Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform mobile health application built with Expo and React Native. "Himsog" means "healthy" in Cebuano.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **User Authentication** - Secure login, registration, and email verification
+- **Cross-Platform** - Runs on iOS, Android, and Web
+- **Dark/Light Mode** - Automatic theme detection with manual toggle support
+- **Map Integration** - Location-based features with Mapbox
+- **Tab Navigation** - Intuitive bottom tab navigation
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **Framework**: Expo SDK 54 / React Native 0.81
+- **Routing**: Expo Router (file-based routing)
+- **State Management**: TanStack React Query
+- **Forms**: react-hook-form + Zod validation
+- **HTTP Client**: Axios
+- **Maps**: Mapbox
+- **Language**: TypeScript (strict mode)
 
-   ```bash
-   npx expo start
-   ```
+## Prerequisites
 
-In the output, you'll find options to open the app in a
+Before you begin, ensure you have the following installed:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- [pnpm](https://pnpm.io/) (or npm/yarn)
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- For iOS development: Xcode (macOS only)
+- For Android development: Android Studio with Android SDK
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Getting Started
 
-## Get a fresh project
-
-When you're ready, run:
+### 1. Clone the repository
 
 ```bash
-npm run reset-project
+git clone https://github.com/yourusername/himsog-mobile.git
+cd himsog-mobile
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Install dependencies
 
-## Learn more
+```bash
+pnpm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Start the development server
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+pnpm start
+```
 
-## Join the community
+This will start the Expo development server. You can then:
 
-Join our community of developers creating universal apps.
+- Press `a` to open on Android emulator
+- Press `i` to open on iOS simulator (macOS only)
+- Press `w` to open in web browser
+- Scan the QR code with [Expo Go](https://expo.dev/go) app on your physical device
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Alternative run commands
+
+```bash
+# Run directly on Android
+pnpm run android
+
+# Run directly on iOS
+pnpm run ios
+
+# Run in web browser
+pnpm run web
+```
+
+## Project Structure
+
+```
+himsog-mobile/
+├── app/                    # Expo Router pages and layouts
+│   ├── (auth)/            # Authentication screens
+│   │   ├── login.tsx
+│   │   ├── register.tsx
+│   │   └── verify-email.tsx
+│   ├── (tabs)/            # Main tab navigation
+│   │   ├── index.tsx      # Home screen
+│   │   ├── explore.tsx    # Explore screen
+│   │   └── _layout.tsx    # Tab navigator config
+│   └── _layout.tsx        # Root layout
+├── components/            # Reusable UI components
+│   ├── ui/               # Base UI primitives
+│   ├── themed-text.tsx
+│   └── themed-view.tsx
+├── hooks/                 # Custom React hooks
+├── constants/            # App constants and theme
+└── assets/               # Images, fonts, etc.
+```
+
+## Development
+
+### Linting
+
+```bash
+pnpm run lint
+```
+
+### Reset project
+
+To get a fresh start (moves current app to `app-example`):
+
+```bash
+pnpm run reset-project
+```
+
+## License
+
+This project is private.
