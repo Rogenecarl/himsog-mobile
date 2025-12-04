@@ -11,78 +11,69 @@ import { useAuth } from '@/hooks/use-auth';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
-const loginSchema = z.object({
+const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-  const { login } = useAuth();
+  const { forgotPassword } = useAuth();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
     getValues,
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
-      password: '',
     },
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    login.mutate(data, {
+  const onSubmit = (data: ForgotPasswordFormData) => {
+    forgotPassword.mutate(data, {
       onSuccess: () => {
-        router.replace('/(tabs)');
+        router.push({
+          pathname: '/(auth)/reset-password',
+          params: { email: getValues('email') },
+        });
       },
     });
   };
 
   const getErrorMessage = (): string | null => {
-    if (!login.error) return null;
-    return login.error instanceof Error ? login.error.message : 'Login failed';
+    if (!forgotPassword.error) return null;
+    return forgotPassword.error instanceof Error ? forgotPassword.error.message : 'Failed to send reset code';
   };
 
   const errorMessage = getErrorMessage();
-  const needsVerification = errorMessage?.includes('verify your email');
-
-  const handleGoToVerify = () => {
-    const email = getValues('email');
-    if (email) {
-      router.push({
-        pathname: '/(auth)/verify-email',
-        params: { email },
-      });
-    }
-  };
+  const isRateLimited = errorMessage?.includes('Too many requests');
 
   return (
     <ThemedView style={styles.container}>
       <View style={styles.header}>
-        <ThemedText type="title">Welcome Back</ThemedText>
-        <ThemedText style={styles.subtitle}>Sign in to continue</ThemedText>
+        <ThemedText type="title">Forgot Password</ThemedText>
+        <ThemedText style={styles.subtitle}>
+          Enter your email and we&apos;ll send you a code to reset your password
+        </ThemedText>
       </View>
 
       <View style={styles.form}>
         {/* Error Alert */}
         {errorMessage && (
-          <View style={styles.errorAlert}>
-            <View style={styles.errorContent}>
-              <IconSymbol name="exclamationmark.circle.fill" size={20} color="#dc2626" />
+          <View style={[styles.alertBox, styles.errorAlert]}>
+            <View style={styles.alertContent}>
+              <IconSymbol
+                name={isRateLimited ? 'clock.fill' : 'exclamationmark.circle.fill'}
+                size={20}
+                color="#dc2626"
+              />
               <ThemedText style={styles.errorText}>{errorMessage}</ThemedText>
             </View>
-            {needsVerification && (
-              <Pressable style={styles.errorAction} onPress={handleGoToVerify}>
-                <ThemedText style={styles.errorActionText}>Verify Email</ThemedText>
-                <IconSymbol name="chevron.right" size={14} color="#dc2626" />
-              </Pressable>
-            )}
           </View>
         )}
 
@@ -112,52 +103,22 @@ export default function LoginScreen() {
           {errors.email && <ThemedText style={styles.fieldError}>{errors.email.message}</ThemedText>}
         </View>
 
-        <View style={styles.inputGroup}>
-          <ThemedText style={styles.label}>Password</ThemedText>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={[
-                  styles.input,
-                  { backgroundColor: colors.background, color: colors.text, borderColor: colors.icon },
-                  errors.password && styles.inputError,
-                ]}
-                placeholder="Enter your password"
-                placeholderTextColor={colors.icon}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                secureTextEntry
-                autoComplete="password"
-              />
-            )}
-          />
-          {errors.password && <ThemedText style={styles.fieldError}>{errors.password.message}</ThemedText>}
-          <Link href="/(auth)/forgot-password" asChild>
-            <Pressable style={styles.forgotPassword}>
-              <ThemedText style={{ color: colors.tint }}>Forgot password?</ThemedText>
-            </Pressable>
-          </Link>
-        </View>
-
         <Pressable
-          style={[styles.button, { backgroundColor: colors.tint }, login.isPending && styles.buttonDisabled]}
+          style={[styles.button, { backgroundColor: colors.tint }, forgotPassword.isPending && styles.buttonDisabled]}
           onPress={handleSubmit(onSubmit)}
-          disabled={login.isPending}>
-          {login.isPending ? (
+          disabled={forgotPassword.isPending}>
+          {forgotPassword.isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <ThemedText style={styles.buttonText}>Sign In</ThemedText>
+            <ThemedText style={styles.buttonText}>Send Reset Code</ThemedText>
           )}
         </Pressable>
 
         <View style={styles.footer}>
-          <ThemedText>Don&apos;t have an account? </ThemedText>
-          <Link href="/(auth)/register" asChild>
+          <ThemedText>Remember your password? </ThemedText>
+          <Link href="/(auth)/login" asChild>
             <Pressable>
-              <ThemedText style={{ color: colors.tint }}>Sign Up</ThemedText>
+              <ThemedText style={{ color: colors.tint }}>Sign In</ThemedText>
             </Pressable>
           </Link>
         </View>
@@ -178,18 +139,21 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 8,
     opacity: 0.7,
+    lineHeight: 22,
   },
   form: {
     gap: 16,
   },
-  errorAlert: {
-    backgroundColor: '#fef2f2',
+  alertBox: {
     borderWidth: 1,
-    borderColor: '#fecaca',
     borderRadius: 12,
     padding: 12,
   },
-  errorContent: {
+  errorAlert: {
+    backgroundColor: '#fef2f2',
+    borderColor: '#fecaca',
+  },
+  alertContent: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
@@ -199,21 +163,6 @@ const styles = StyleSheet.create({
     color: '#dc2626',
     fontSize: 14,
     lineHeight: 20,
-  },
-  errorAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 4,
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#fecaca',
-  },
-  errorActionText: {
-    color: '#dc2626',
-    fontSize: 14,
-    fontWeight: '600',
   },
   inputGroup: {
     gap: 4,
@@ -256,9 +205,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 16,
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginTop: 8,
   },
 });

@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { removeToken, setToken } from '@/lib/auth';
 import * as authService from '@/services/auth-service';
-import type { LoginRequest, RegisterRequest, ResendOtpRequest, VerifyEmailRequest } from '@/types/auth';
+import type {
+  ForgotPasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResendOtpRequest,
+  ResetPasswordRequest,
+  VerifyEmailRequest,
+} from '@/types/auth';
 
 const AUTH_QUERY_KEY = ['auth', 'user'] as const;
 
@@ -14,16 +21,18 @@ export function useAuth() {
     isError,
   } = useQuery({
     queryKey: AUTH_QUERY_KEY,
-    queryFn: authService.getMe,
+    queryFn: authService.getUser,
     retry: false,
     enabled: true,
   });
 
   const loginMutation = useMutation({
     mutationFn: (credentials: LoginRequest) => authService.login(credentials),
-    onSuccess: async (data) => {
-      await setToken(data.token);
-      queryClient.setQueryData(AUTH_QUERY_KEY, data.user);
+    onSuccess: async (response) => {
+      if (response.data) {
+        await setToken(response.data.token);
+        queryClient.setQueryData(AUTH_QUERY_KEY, response.data.user);
+      }
     },
   });
 
@@ -42,6 +51,14 @@ export function useAuth() {
     mutationFn: (data: ResendOtpRequest) => authService.resendOtp(data),
   });
 
+  const forgotPasswordMutation = useMutation({
+    mutationFn: (data: ForgotPasswordRequest) => authService.forgotPassword(data),
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: (data: ResetPasswordRequest) => authService.resetPassword(data),
+  });
+
   const logout = async () => {
     await removeToken();
     queryClient.setQueryData(AUTH_QUERY_KEY, null);
@@ -56,6 +73,8 @@ export function useAuth() {
     register: registerMutation,
     verifyEmail: verifyEmailMutation,
     resendOtp: resendOtpMutation,
+    forgotPassword: forgotPasswordMutation,
+    resetPassword: resetPasswordMutation,
     logout,
   };
 }

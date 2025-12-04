@@ -2,7 +2,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  emailVerified: boolean;
+  image?: string | null;
+  role: string;
 }
 
 export interface LoginRequest {
@@ -16,9 +17,13 @@ export interface RegisterRequest {
   name: string;
 }
 
-export interface AuthResponse {
-  token: string;
-  user: User;
+export interface LoginResponse {
+  success: boolean;
+  data?: {
+    token: string;
+    user: User;
+  };
+  error?: string;
 }
 
 export interface RegisterResponse {
@@ -39,8 +44,26 @@ export interface ResendOtpRequest {
   email: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  password: string;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
+  error?: string;
+}
+
+export interface UserResponse {
+  success: boolean;
+  data?: {
+    user: User;
+  };
   error?: string;
 }
